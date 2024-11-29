@@ -1,6 +1,6 @@
 #Author: Hansaja Sandeepa
 #Date: 11/27/2024
-#Student ID: 
+#Student ID: 20244017
 
 # Task A: Input Validation
 def validate_date_input(message, start_range, end_range):
@@ -16,7 +16,7 @@ def validate_date_input(message, start_range, end_range):
             else:
                 print(f"Out of range - values must be in the range {start_range} and {end_range}")
                 continue
-            return date
+    return date
 
 date_dd = validate_date_input("Please enter the day of the survey in the format dd: ", 1,31)
 date_MM = validate_date_input("Please enter the day of the survey in the format MM: ", 1,12)
