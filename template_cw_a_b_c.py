@@ -3,15 +3,24 @@
 #Student ID: 
 
 # Task A: Input Validation
-def validate_date_input():
-    try:
-        date_dd = int(input('Please enter the day of the survey in the format dd: '))
-        print(date_dd)
-    except ValueError:
-        print("Integer required")
-    else:
+def validate_date_input(message, start_range, end_range):
+    while True:
+        try:
+            date = int(input(message))
+        except ValueError:
+            print("Integer required")
+            continue
+        else:
+            if date is not None and start_range <= date <= end_range:
+                break
+            else:
+                print(f"Out of range - values must be in the range {start_range} and {end_range}")
+                continue
+            return date
 
-validate_date_input()
+date_dd = validate_date_input("Please enter the day of the survey in the format dd: ", 1,31)
+date_MM = validate_date_input("Please enter the day of the survey in the format MM: ", 1,12)
+date_YYYY = validate_date_input("Please enter the day of the survey in the format YYYY: ", 2000,2024)
 
 def validate_continue_input():
     """
