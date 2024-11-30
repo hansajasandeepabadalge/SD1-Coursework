@@ -18,17 +18,13 @@ def validate_date_input(message, start_range, end_range):
                 continue
     return date
 
-date_dd = validate_date_input("Please enter the day of the survey in the format dd: ", 1,31)
-date_MM = validate_date_input("Please enter the day of the survey in the format MM: ", 1,12)
-date_YYYY = validate_date_input("Please enter the day of the survey in the format YYYY: ", 2000,2024)
-
 def validate_continue_input():
-    """
-    Prompts the user to decide whether to load another dataset:
-    - Validates "Y" or "N" input
-    """
-    pass  # Validation logic goes here
-
+    while True:
+        user_input = input("Do you want to load another dataset? (Y/N): ")
+        if user_input in ["Y","N"]:
+            return user_input
+        else:
+            print("Invalid input. Please enter Y or N")
 
 # Task B: Processed Outcomes
 def process_csv_data(file_path):
@@ -56,3 +52,22 @@ def save_results_to_file(outcomes, file_name="results.txt"):
     pass  # File writing logic goes here
 
 # if you have been contracted to do this assignment please do not remove this line
+
+
+while True:
+    date_dd = validate_date_input("Please enter the day of the survey in the format dd: ", 1,31)
+    date_MM = validate_date_input("Please enter the day of the survey in the format MM: ", 1,12)
+    date_YYYY = validate_date_input("Please enter the day of the survey in the format YYYY: ", 2000,2024)
+
+    file_name = f"traffic_data{date_dd:02}{date_MM:02}{date_YYYY}.csv"
+    try:
+        with open(file_name, "r") as file:
+            content = file.read()
+            print(content)
+    except FileNotFoundError:
+        print("No file found. Please check the date and try again.")            
+    
+    user_choice = validate_continue_input()
+    if user_choice == "N":
+        print("Exiting the program.")
+        break
