@@ -35,7 +35,24 @@ def process_csv_data(file_path):
     - Total electric vehicles
     - Two-wheeled vehicles, and other requested metrics
     """
-    pass  # Logic for processing data goes here
+    total_vehicles = 0
+    total_trucks = 0
+    total_electric_vehicles = 0
+    two_wheeled_vehicles = 0
+
+    with open(file_path, "r") as file:
+        for lines in file:
+            total_vehicles+=1
+            if lines.split(",")[8] == "Truck":
+                total_trucks += 1
+            if lines.split(",")[9].strip().upper() == "TRUE":
+                total_electric_vehicles += 1
+            if lines.split(",")[8] == "Bicycle" or lines.split(",")[8] == "Scooter" or lines.split(",")[8] == "Motorcycle":
+                two_wheeled_vehicles += 1
+    print(total_vehicles-1)
+    print(total_trucks)
+    print(total_electric_vehicles)
+    print(two_wheeled_vehicles)
 
 def display_outcomes(outcomes):
     """
@@ -61,9 +78,7 @@ while True:
 
     file_name = f"traffic_data{date_dd:02}{date_MM:02}{date_YYYY}.csv"
     try:
-        with open(file_name, "r") as file:
-            content = file.read()
-            print(content)
+        process_csv_data(file_name)
     except FileNotFoundError:
         print("No file found. Please check the date and try again.")            
     
