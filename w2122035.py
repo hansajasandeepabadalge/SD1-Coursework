@@ -26,6 +26,26 @@ def validate_continue_input():
         else:
             print("Invalid input. Please enter Y or N")
 
+
+def count_timestamps_by_hour(file_path):
+    timestamps = {}
+
+    with open(file_path, "r") as file:
+        for lines in file:
+            date = lines.split(",")[2]
+            timestamps.append(date)
+
+    hour_counts = {}
+
+    for time in timestamps:
+        hour = time.split(":")[0]
+        if hour not in hour_counts:
+            hour_counts[hour] = 0
+        hour_counts[hour] += 1
+
+    for hour, count in sorted(hour_counts.items()):
+        print(f"Hour {hour}: {count}")
+
 # Task B: Processed Outcomes
 def process_csv_data(file_path):
     lines_in_csv = 0
@@ -45,10 +65,8 @@ def process_csv_data(file_path):
     total_number_of_bicycle = 0
     total_number_of_scooters_elm = 0
 
-    count = 0
-
-
     with open(file_path, "r") as file:
+        number_of_vehicles_in_hours = []
         for lines in file:
             JunctionName = lines.split(",")[0]
             Date = lines.split(",")[1]
@@ -85,17 +103,20 @@ def process_csv_data(file_path):
                     total_number_of_vehicles_elm_avenue_rabbit_road += 1
                 if JunctionName == "Hanley Highway/Westway":
                     total_number_of_vehicles_hanley_highway_westway += 1
+                    hours_in_csv = timeOfDay.split(":")[0]
+                    count_hours = 0
+                    for hours in range(1,25):
+                        if hours == int(hours_in_csv):
+                            count_hours += 1
+                        
+
                 if VehicleType == "Scooter" and JunctionName == "Elm Avenue/Rabbit Road":
                     total_number_of_scooters_elm += 1
-                timeOfDay_split = timeOfDay.split(":")
-                
-
-
                 
     
     percentage_of_all_vehicles_recorded_that_are_trucks = round((total_trucks/total_vehicles)*100)
     average_number_bicycles_per_hour = round(total_number_of_bicycle/24)
-    percentage_of_scooters_through_elm_avenue_rabbit = round(int((total_number_of_scooters_elm/total_number_of_vehicles_elm_avenue_rabbit_road)*100))
+    percentage_of_scooters_through_elm_avenue_rabbit = round((total_number_of_scooters_elm/total_number_of_vehicles_elm_avenue_rabbit_road)*100)
 
     print(total_vehicles)
     print(total_trucks)
@@ -109,8 +130,7 @@ def process_csv_data(file_path):
     print(total_number_of_vehicles_elm_avenue_rabbit_road)
     print(total_number_of_vehicles_hanley_highway_westway)
     print(f"{percentage_of_scooters_through_elm_avenue_rabbit}%")
-    print(total_number_of_vehicles_hanley_highway_westway/24)
-
+    print(number_of_vehicles_in_hours)
 
 def display_outcomes(outcomes):
     pass  # Printing outcomes to the console
