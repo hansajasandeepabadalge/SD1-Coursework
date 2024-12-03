@@ -7,123 +7,82 @@ def validate_date_input(message, start_range, end_range):
     while True:
         try:
             date = int(input(message))
-        except ValueError:
-            print("Integer required")
-            continue
-        else:
-            if date is not None and start_range <= date <= end_range:
-                break
+            if start_range <= date <= end_range:
+                return date
             else:
                 print(f"Out of range - values must be in the range {start_range} and {end_range}")
-                continue
-    return date
+        except ValueError:
+            print("Integer required")
 
 def validate_continue_input():
     while True:
         user_input = input("Do you want to load another dataset? (Y/N): ")
-        if user_input in ["Y","N"]:
+        if user_input in ["Y", "N"]:
             return user_input
         else:
             print("Invalid input. Please enter Y or N")
 
-
-def count_timestamps_by_hour(file_path):
-    timestamps = {}
-
-    with open(file_path, "r") as file:
-        for lines in file:
-            date = lines.split(",")[2]
-            timestamps.append(date)
-
-    hour_counts = {}
-
-    for time in timestamps:
-        hour = time.split(":")[0]
-        if hour not in hour_counts:
-            hour_counts[hour] = 0
-        hour_counts[hour] += 1
-        print(hour_counts)
-
-
 # Task B: Processed Outcomes
 def process_csv_data(file_path):
-
-    lines_in_csv = 0
-    total_vehicles = 0
-    total_trucks = 0
-    total_electric_vehicles = 0
-    two_wheeled_vehicles = 0
-    total_busses_north_elm_rabit = 0
-    both_junctions_without_turning_left_or_right = 0
-    percentage_of_all_vehicles_recorded_that_are_trucks = 0
-    average_number_bicycles_per_hour = 0
-    total_number_of_vehicles_recorded_as_over_the_speed = 0
-    total_number_of_vehicles_elm_avenue_rabbit_road = 0
-    total_number_of_vehicles_hanley_highway_westway = 0
-    percentage_of_scooters_through_elm_avenue_rabbit = 0
-
-    total_number_of_bicycle = 0
-    total_number_of_scooters_elm = 0
+    stats = {
+        "total_vehicles": 0,
+        "total_trucks": 0,
+        "total_electric_vehicles": 0,
+        "two_wheeled_vehicles": 0,
+        "total_busses_north_elm_rabit": 0,
+        "both_junctions_without_turning_left_or_right": 0,
+        "total_number_of_vehicles_recorded_as_over_the_speed": 0,
+        "total_number_of_vehicles_elm_avenue_rabbit_road": 0,
+        "total_number_of_vehicles_hanley_highway_westway": 0,
+        "total_number_of_bicycle": 0,
+        "total_number_of_scooters_elm": 0,
+        "hours": []
+    }
 
     with open(file_path, "r") as file:
-        number_of_vehicles_in_hours = []
-        for lines in file:
-            JunctionName = lines.split(",")[0]
-            Date = lines.split(",")[1]
-            timeOfDay = lines.split(",")[2]
-            travel_Direction_in = lines.split(",")[3]
-            travel_Direction_out = lines.split(",")[4]
-            Weather_Conditions = lines.split(",")[5]
-            JunctionSpeedLimit = lines.split(",")[6]
-            VehicleSpeed = lines.split(",")[7]
-            VehicleType = lines.split(",")[8]
-            elctricHybrid = lines.split(",")[9].strip().upper()
-
-            lines_in_csv += 1
-
-            if lines_in_csv == 1:
+        for i, line in enumerate(file):
+            if i == 0:
                 continue
-            else:
-                total_vehicles += 1
-                if VehicleType == "Truck":
-                    total_trucks += 1
-                if elctricHybrid == "TRUE":
-                    total_electric_vehicles += 1
-                if VehicleType == "Bicycle" or VehicleType == "Scooter" or VehicleType == "Motorcycle":
-                    two_wheeled_vehicles += 1
-                if JunctionName == "Elm Avenue/Rabbit Road"  and travel_Direction_out == "N" and VehicleType == "Buss":
-                    total_busses_north_elm_rabit += 1
-                if travel_Direction_in == travel_Direction_out:
-                    both_junctions_without_turning_left_or_right += 1
-                if VehicleType == "Bicycle":
-                    total_number_of_bicycle += 1
-                if int(JunctionSpeedLimit) < int(VehicleSpeed):
-                    total_number_of_vehicles_recorded_as_over_the_speed += 1
-                if JunctionName == "Elm Avenue/Rabbit Road":
-                    total_number_of_vehicles_elm_avenue_rabbit_road += 1
-                if JunctionName == "Hanley Highway/Westway":
-                    total_number_of_vehicles_hanley_highway_westway += 1
-                if VehicleType == "Scooter" and JunctionName == "Elm Avenue/Rabbit Road":
-                    total_number_of_scooters_elm += 1
-                
-    
-    percentage_of_all_vehicles_recorded_that_are_trucks = round((total_trucks/total_vehicles)*100)
-    average_number_bicycles_per_hour = round(total_number_of_bicycle/24)
-    percentage_of_scooters_through_elm_avenue_rabbit = round((total_number_of_scooters_elm/total_number_of_vehicles_elm_avenue_rabbit_road)*100)
+            data = line.strip().split(",")
+            stats["total_vehicles"] += 1
+            if data[8] == "Truck":
+                stats["total_trucks"] += 1
+            if data[9].strip().upper() == "TRUE":
+                stats["total_electric_vehicles"] += 1
+            if data[8] in ["Bicycle", "Scooter", "Motorcycle"]:
+                stats["two_wheeled_vehicles"] += 1
+            if data[0] == "Elm Avenue/Rabbit Road" and data[4] == "N" and data[8] == "Buss":
+                stats["total_busses_north_elm_rabit"] += 1
+            if data[3] == data[4]:
+                stats["both_junctions_without_turning_left_or_right"] += 1
+            if data[8] == "Bicycle":
+                stats["total_number_of_bicycle"] += 1
+            if int(data[6]) < int(data[7]):
+                stats["total_number_of_vehicles_recorded_as_over_the_speed"] += 1
+            if data[0] == "Elm Avenue/Rabbit Road":
+                stats["total_number_of_vehicles_elm_avenue_rabbit_road"] += 1
+            if data[0] == "Hanley Highway/Westway":
+                stats["total_number_of_vehicles_hanley_highway_westway"] += 1
+                stats["hours"].append(data[2].split(":")[0])
+            if data[8] == "Scooter" and data[0] == "Elm Avenue/Rabbit Road":
+                stats["total_number_of_scooters_elm"] += 1
 
-    print(total_vehicles)
-    print(total_trucks)
-    print(total_electric_vehicles)
-    print(two_wheeled_vehicles)
-    print(total_busses_north_elm_rabit)
-    print(both_junctions_without_turning_left_or_right)
-    print(f"{percentage_of_all_vehicles_recorded_that_are_trucks}%")
-    print(average_number_bicycles_per_hour)
-    print(total_number_of_vehicles_recorded_as_over_the_speed)
-    print(total_number_of_vehicles_elm_avenue_rabbit_road)
-    print(total_number_of_vehicles_hanley_highway_westway)
-    print(f"{percentage_of_scooters_through_elm_avenue_rabbit}%")
-    print(number_of_vehicles_in_hours)
+    hour_counts = {hour: stats["hours"].count(hour) for hour in set(stats["hours"])}
+    hour_count = list(hour_counts.values())
+
+    print(stats["total_vehicles"])
+    print(stats["total_trucks"])
+    print(stats["total_electric_vehicles"])
+    print(stats["two_wheeled_vehicles"])
+    print(stats["total_busses_north_elm_rabit"])
+    print(stats["both_junctions_without_turning_left_or_right"])
+    print(f"{round((stats['total_trucks'] / stats['total_vehicles']) * 100)}%")
+    print(round(stats["total_number_of_bicycle"] / 24))
+    print(stats["total_number_of_vehicles_recorded_as_over_the_speed"])
+    print(stats["total_number_of_vehicles_elm_avenue_rabbit_road"])
+    print(stats["total_number_of_vehicles_hanley_highway_westway"])
+    print(f"{round((stats['total_number_of_scooters_elm'] / stats['total_number_of_vehicles_elm_avenue_rabbit_road']) * 100)}%")
+    print(max(hour_count))
 
 def display_outcomes(outcomes):
     pass  # Printing outcomes to the console
@@ -147,16 +106,12 @@ while True:
     date_dd = 15
     date_MM = 6
     date_YYYY = 2024
-
     file_name = f"traffic_data{date_dd:02}{date_MM:02}{date_YYYY}.csv"
     try:
-        # process_csv_data(file_name)
-        count_timestamps_by_hour(file_name)
-        pass
+        process_csv_data(file_name)
     except FileNotFoundError:
-        print("No file found. Please check the date and try again.")            
-    
-    user_choice = validate_continue_input()
-    if user_choice == "N":
+        print("No file found. Please check the date and try again.")
+
+    if validate_continue_input() == "N":
         print("Exiting the program.")
         break
