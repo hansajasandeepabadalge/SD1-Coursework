@@ -26,8 +26,28 @@ def validate_continue_input():
         else:
             print("Invalid input. Please enter Y or N")
 
+
+def count_timestamps_by_hour(file_path):
+    timestamps = {}
+
+    with open(file_path, "r") as file:
+        for lines in file:
+            date = lines.split(",")[2]
+            timestamps.append(date)
+
+    hour_counts = {}
+
+    for time in timestamps:
+        hour = time.split(":")[0]
+        if hour not in hour_counts:
+            hour_counts[hour] = 0
+        hour_counts[hour] += 1
+        print(hour_counts)
+
+
 # Task B: Processed Outcomes
 def process_csv_data(file_path):
+
     lines_in_csv = 0
     total_vehicles = 0
     total_trucks = 0
@@ -45,9 +65,8 @@ def process_csv_data(file_path):
     total_number_of_bicycle = 0
     total_number_of_scooters_elm = 0
 
-    hours = []
-
     with open(file_path, "r") as file:
+        number_of_vehicles_in_hours = []
         for lines in file:
             JunctionName = lines.split(",")[0]
             Date = lines.split(",")[1]
@@ -84,25 +103,14 @@ def process_csv_data(file_path):
                     total_number_of_vehicles_elm_avenue_rabbit_road += 1
                 if JunctionName == "Hanley Highway/Westway":
                     total_number_of_vehicles_hanley_highway_westway += 1
-
-                    hour = timeOfDay.split(":")[0]
-                    hours.append(hour)
                 if VehicleType == "Scooter" and JunctionName == "Elm Avenue/Rabbit Road":
                     total_number_of_scooters_elm += 1
-    hour_counts = {}
-
-    for hour in hours:
-        if hour not in hour_counts:
-            hour_counts[hour] = 0
-        hour_counts[hour] += 1
-
-    hour_count = list(hour_counts.values())
-
- 
+                
+    
     percentage_of_all_vehicles_recorded_that_are_trucks = round((total_trucks/total_vehicles)*100)
     average_number_bicycles_per_hour = round(total_number_of_bicycle/24)
     percentage_of_scooters_through_elm_avenue_rabbit = round((total_number_of_scooters_elm/total_number_of_vehicles_elm_avenue_rabbit_road)*100)
-    
+
     print(total_vehicles)
     print(total_trucks)
     print(total_electric_vehicles)
@@ -115,7 +123,7 @@ def process_csv_data(file_path):
     print(total_number_of_vehicles_elm_avenue_rabbit_road)
     print(total_number_of_vehicles_hanley_highway_westway)
     print(f"{percentage_of_scooters_through_elm_avenue_rabbit}%")
-    print(max(hour_count))
+    print(number_of_vehicles_in_hours)
 
 def display_outcomes(outcomes):
     pass  # Printing outcomes to the console
@@ -142,7 +150,8 @@ while True:
 
     file_name = f"traffic_data{date_dd:02}{date_MM:02}{date_YYYY}.csv"
     try:
-        process_csv_data(file_name)
+        # process_csv_data(file_name)
+        count_timestamps_by_hour(file_name)
         pass
     except FileNotFoundError:
         print("No file found. Please check the date and try again.")            
