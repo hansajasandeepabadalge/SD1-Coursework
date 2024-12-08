@@ -100,15 +100,16 @@ The total number of two-wheeled vehicles for this date is {outcomes["two_wheeled
 The total number of Busses leaving Elm Avenue/Rabbit Road heading North is {outcomes["total_busses_north_elm_rabbit"]} 
 The total number of Vehicles through both junctions not turning left or right is {outcomes["both_junctions_no_turn"]}  
 The percentage of total vehicles recorded that are trucks for this date is {outcomes[""]}%
-The average number of Bikes per hour for this date is {outcomes[""]} 
+The average number of Bikes per hour for this date is {outcomes["bicycles_per_hour"]} 
  
 The total number of Vehicles recorded as over the speed limit for this date is {outcomes["vehicles_over_speed"]}  
-The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is 494 The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes[""]}  
-{outcomes[""]} of vehicles recorded through Elm Avenue/Rabbit Road are scooters. 
+The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is {outcomes["elm_avenue_vehicles"]}
+The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes["hanley_highway_vehicles"]}  
+{outcomes["scooter_percentage_elm"]} of vehicles recorded through Elm Avenue/Rabbit Road are scooters. 
  
 The highest number of vehicles in an hour on Hanley Highway/Westway is {outcomes[""]} 
 The most vehicles through Hanley Highway/Westway were recorded between 18:00 and 19:00  
-The number of hours of rain for this date is {outcomes[""]}
+The number of hours of rain for this date is {outcomes["hours_of_rain"]}
 """)
 
 # Main Program Loop

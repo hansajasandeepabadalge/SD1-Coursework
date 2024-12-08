@@ -132,10 +132,11 @@ def process_csv_data(file_path):
     print(total_number_of_vehicles_elm_avenue_rabbit_road)
     print(total_number_of_vehicles_hanley_highway_westway)
     print(f"{percentage_of_scooters_through_elm_avenue_rabbit}%")
+    print(max(hour_count))
     for key, value in most_common_hours.items():
         print(f"{key}:00 between {int(key)+1}:00")
     print(f"{len(hour_of_rain_count)}h")
-    return total_vehicles, total_trucks, total_electric_vehicles, two_wheeled_vehicles, total_busses_north_elm_rabit, both_junctions_without_turning_left_or_right, 
+    return total_vehicles, total_trucks, total_electric_vehicles, two_wheeled_vehicles, total_busses_north_elm_rabit, both_junctions_without_turning_left_or_right, percentage_of_all_vehicles_recorded_that_are_trucks
     
 
 def display_outcomes(outcomes):
