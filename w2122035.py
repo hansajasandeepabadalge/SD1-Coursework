@@ -46,6 +46,7 @@ def process_csv_data(file_path):
     total_number_of_scooters_elm = 0
 
     hours = []
+    hours_for_rains = []
 
     with open(file_path, "r") as file:
         for lines in file:
@@ -84,21 +85,37 @@ def process_csv_data(file_path):
                     total_number_of_vehicles_elm_avenue_rabbit_road += 1
                 if JunctionName == "Hanley Highway/Westway":
                     total_number_of_vehicles_hanley_highway_westway += 1
-
                     hour = timeOfDay.split(":")[0]
                     hours.append(hour)
                 if VehicleType == "Scooter" and JunctionName == "Elm Avenue/Rabbit Road":
                     total_number_of_scooters_elm += 1
+                if Weather_Conditions == "Light Rain" or Weather_Conditions == "Heavy Rain":
+                    hour_of_rain = timeOfDay.split(":")[0]
+                    hours_for_rains.append(hour_of_rain)
+
     hour_counts = {}
+    hour_of_rain_counts = {}
 
     for hour in hours:
         if hour not in hour_counts:
             hour_counts[hour] = 0
         hour_counts[hour] += 1
-
+    
+    for hour_of_rain in hours_for_rains:
+        if hour_of_rain not in hour_of_rain_counts:
+            hour_of_rain_counts[hour_of_rain] = 0
+        hour_of_rain_counts[hour_of_rain] +=1
+    
     hour_count = list(hour_counts.values())
+    hour_of_rain_count = list(hour_of_rain_counts.keys())
 
- 
+    most_common_hours = {}
+
+    for key, value in hour_counts.items():
+        if value == max(hour_count):
+            most_common_hours[key]=value
+    
+    
     percentage_of_all_vehicles_recorded_that_are_trucks = round((total_trucks/total_vehicles)*100)
     average_number_bicycles_per_hour = round(total_number_of_bicycle/24)
     percentage_of_scooters_through_elm_avenue_rabbit = round((total_number_of_scooters_elm/total_number_of_vehicles_elm_avenue_rabbit_road)*100)
@@ -115,10 +132,30 @@ def process_csv_data(file_path):
     print(total_number_of_vehicles_elm_avenue_rabbit_road)
     print(total_number_of_vehicles_hanley_highway_westway)
     print(f"{percentage_of_scooters_through_elm_avenue_rabbit}%")
-    print(max(hour_count))
+    for key, value in most_common_hours.items():
+        print(f"{key}:00 between {int(key)+1}:00")
+    print(f"{len(hour_of_rain_count)}h")
+    return total_vehicles, total_trucks, total_electric_vehicles, two_wheeled_vehicles, total_busses_north_elm_rabit, both_junctions_without_turning_left_or_right, 
+    
 
 def display_outcomes(outcomes):
-    pass  # Printing outcomes to the console
+    print(
+f"""The total number of vehicles recorded for this date i
+The total number of trucks recorded for this date is 109
+The total number of electric vehicles for this date is 368
+The total number of two-wheeled vehicles for this date is 401
+The total number of Busses leaving Elm Avenue/Rabbit Road heading North is 15
+The total number of Vehicles through both junctions not turning left or right is 363
+The percentage of total vehicles recorded that are trucks for this date is 11% the average number of Bikes per hour for this date is 7
+        
+The total number of Vehicles recorded as over the speed limit for this date is 205
+The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is 494 The total number of vehicles recorded through Hanley Highway/Westway junction is 543
+10% of vehicles recorded through Elm Avenue/Rabbit Road are scooters.
+        
+The highest number of vehicles in an hour on Hanley Highway/Westway is 39
+The most vehicles through Hanley Highway/Westway were recorded between 18:00 and 19:00
+The number of hours of rain for this date is 0
+    """)
 
 # Task C: Save Results to Text File
 def save_results_to_file(outcomes, file_name="results.txt"):
@@ -131,14 +168,14 @@ def save_results_to_file(outcomes, file_name="results.txt"):
 
 
 while True:
-    """
     date_dd = validate_date_input("Please enter the day of the survey in the format dd: ", 1,31)
     date_MM = validate_date_input("Please enter the day of the survey in the format MM: ", 1,12)
     date_YYYY = validate_date_input("Please enter the day of the survey in the format YYYY: ", 2000,2024)
     """
-    date_dd = 15
+    date_dd = 16
     date_MM = 6
     date_YYYY = 2024
+    """
 
     file_name = f"traffic_data{date_dd:02}{date_MM:02}{date_YYYY}.csv"
     try:

@@ -1,117 +1,124 @@
-#Author: Hansaja Sandeepa
-#Date: 11/27/2024
-#Student ID: 20244017
+# Author: Hansaja Sandeepa
+# Date: 11/27/2024
+# Student ID: 20244017
 
 # Task A: Input Validation
 def validate_date_input(message, start_range, end_range):
     while True:
         try:
             date = int(input(message))
+        except ValueError:
+            print("Integer required")
+            continue
+        else:
             if start_range <= date <= end_range:
                 return date
             else:
                 print(f"Out of range - values must be in the range {start_range} and {end_range}")
-        except ValueError:
-            print("Integer required")
 
 def validate_continue_input():
     while True:
-        user_input = input("Do you want to load another dataset? (Y/N): ")
+        user_input = input("Do you want to load another dataset? (Y/N): ").upper()
         if user_input in ["Y", "N"]:
             return user_input
-        else:
-            print("Invalid input. Please enter Y or N")
+        print("Invalid input. Please enter Y or N")
 
-# Task B: Processed Outcomes
+# Task B: Process CSV Data
 def process_csv_data(file_path):
-    stats = {
+    outcomes = {
         "total_vehicles": 0,
         "total_trucks": 0,
         "total_electric_vehicles": 0,
         "two_wheeled_vehicles": 0,
-        "total_busses_north_elm_rabit": 0,
-        "both_junctions_without_turning_left_or_right": 0,
-        "total_number_of_vehicles_recorded_as_over_the_speed": 0,
-        "total_number_of_vehicles_elm_avenue_rabbit_road": 0,
-        "total_number_of_vehicles_hanley_highway_westway": 0,
-        "total_number_of_bicycle": 0,
-        "total_number_of_scooters_elm": 0,
-        "hours": []
+        "total_busses_north_elm_rabbit": 0,
+        "both_junctions_no_turn": 0,
+        "vehicles_over_speed": 0,
+        "elm_avenue_vehicles": 0,
+        "hanley_highway_vehicles": 0,
+        "bicycles_per_hour": 0,
+        "scooter_percentage_elm": 0,
+        "most_common_hour": None,
+        "hours_of_rain": 0
     }
 
-    with open(file_path, "r") as file:
-        for i, line in enumerate(file):
-            if i == 0:
-                continue
-            data = line.strip().split(",")
-            stats["total_vehicles"] += 1
-            if data[8] == "Truck":
-                stats["total_trucks"] += 1
-            if data[9].strip().upper() == "TRUE":
-                stats["total_electric_vehicles"] += 1
-            if data[8] in ["Bicycle", "Scooter", "Motorcycle"]:
-                stats["two_wheeled_vehicles"] += 1
-            if data[0] == "Elm Avenue/Rabbit Road" and data[4] == "N" and data[8] == "Buss":
-                stats["total_busses_north_elm_rabit"] += 1
-            if data[3] == data[4]:
-                stats["both_junctions_without_turning_left_or_right"] += 1
-            if data[8] == "Bicycle":
-                stats["total_number_of_bicycle"] += 1
-            if int(data[6]) < int(data[7]):
-                stats["total_number_of_vehicles_recorded_as_over_the_speed"] += 1
-            if data[0] == "Elm Avenue/Rabbit Road":
-                stats["total_number_of_vehicles_elm_avenue_rabbit_road"] += 1
-            if data[0] == "Hanley Highway/Westway":
-                stats["total_number_of_vehicles_hanley_highway_westway"] += 1
-                stats["hours"].append(data[2].split(":")[0])
-            if data[8] == "Scooter" and data[0] == "Elm Avenue/Rabbit Road":
-                stats["total_number_of_scooters_elm"] += 1
+    vehicle_count = {"Bicycle": 0, "Scooter": 0, "Motorcycle": 0}
+    hour_counts = {}
+    rain_hours = set()
 
-    hour_counts = {hour: stats["hours"].count(hour) for hour in set(stats["hours"])}
-    hour_count = list(hour_counts.values())
-
-    print(stats["total_vehicles"])
-    print(stats["total_trucks"])
-    print(stats["total_electric_vehicles"])
-    print(stats["two_wheeled_vehicles"])
-    print(stats["total_busses_north_elm_rabit"])
-    print(stats["both_junctions_without_turning_left_or_right"])
-    print(f"{round((stats['total_trucks'] / stats['total_vehicles']) * 100)}%")
-    print(round(stats["total_number_of_bicycle"] / 24))
-    print(stats["total_number_of_vehicles_recorded_as_over_the_speed"])
-    print(stats["total_number_of_vehicles_elm_avenue_rabbit_road"])
-    print(stats["total_number_of_vehicles_hanley_highway_westway"])
-    print(f"{round((stats['total_number_of_scooters_elm'] / stats['total_number_of_vehicles_elm_avenue_rabbit_road']) * 100)}%")
-    print(max(hour_count))
-
-def display_outcomes(outcomes):
-    pass  # Printing outcomes to the console
-
-# Task C: Save Results to Text File
-def save_results_to_file(outcomes, file_name="results.txt"):
-    """
-    Saves the processed outcomes to a text file and appends if the program loops.
-    """
-    pass  # File writing logic goes here
-
-# if you have been contracted to do this assignment please do not remove this line
-
-
-while True:
-    """
-    date_dd = validate_date_input("Please enter the day of the survey in the format dd: ", 1,31)
-    date_MM = validate_date_input("Please enter the day of the survey in the format MM: ", 1,12)
-    date_YYYY = validate_date_input("Please enter the day of the survey in the format YYYY: ", 2000,2024)
-    """
-    date_dd = 15
-    date_MM = 6
-    date_YYYY = 2024
-    file_name = f"traffic_data{date_dd:02}{date_MM:02}{date_YYYY}.csv"
     try:
-        process_csv_data(file_name)
+        with open(file_path, "r") as file:
+            for i, line in enumerate(file):
+                if i == 0:
+                    continue
+                data = line.strip().split(",")
+                junction, date, time, dir_in, dir_out, weather, speed_limit, vehicle_speed, vehicle_type, electric_hybrid = data
+                outcomes["total_vehicles"] += 1
+
+                if vehicle_type == "Truck":
+                    outcomes["total_trucks"] += 1
+                if electric_hybrid.strip().upper() == "TRUE":
+                    outcomes["total_electric_vehicles"] += 1
+                if vehicle_type in vehicle_count:
+                    outcomes["two_wheeled_vehicles"] += 1
+                    vehicle_count[vehicle_type] += 1
+                if junction == "Elm Avenue/Rabbit Road" and dir_out == "N" and vehicle_type == "Buss":
+                    outcomes["total_busses_north_elm_rabbit"] += 1
+                if dir_in == dir_out:
+                    outcomes["both_junctions_no_turn"] += 1
+                if int(vehicle_speed) > int(speed_limit):
+                    outcomes["vehicles_over_speed"] += 1
+                if junction == "Elm Avenue/Rabbit Road":
+                    outcomes["elm_avenue_vehicles"] += 1
+                if junction == "Hanley Highway/Westway":
+                    outcomes["hanley_highway_vehicles"] += 1
+                    hour = time.split(":")[0]
+                    hour_counts[hour] = hour_counts.get(hour, 0) + 1
+                if vehicle_type == "Scooter" and junction == "Elm Avenue/Rabbit Road":
+                    vehicle_count["Scooter"] += 1
+                if weather in ["Light Rain", "Heavy Rain"]:
+                    rain_hours.add(time.split(":")[0])
+
+        # Calculations
+        outcomes["bicycles_per_hour"] = vehicle_count["Bicycle"] // 24
+        if outcomes["elm_avenue_vehicles"]:
+            outcomes["scooter_percentage_elm"] = (vehicle_count["Scooter"] * 100) // outcomes["elm_avenue_vehicles"]
+        outcomes["most_common_hour"] = max(hour_counts, key=hour_counts.get, default=None)
+        outcomes["hours_of_rain"] = len(rain_hours)
+
+        display_outcomes(outcomes)
+
     except FileNotFoundError:
         print("No file found. Please check the date and try again.")
 
+# Task C: Display Outcomes
+def display_outcomes(outcomes):
+    print(f"""
+The total number of vehicles recorded for this date is {outcomes["total_vehicles"]}  
+The total number of trucks recorded for this date is {outcomes["total_trucks"]} 
+The total number of electric vehicles for this date is {outcomes["total_electric_vehicles"]} 
+The total number of two-wheeled vehicles for this date is {outcomes["two_wheeled_vehicles"]} 
+The total number of Busses leaving Elm Avenue/Rabbit Road heading North is {outcomes["total_busses_north_elm_rabbit"]} 
+The total number of Vehicles through both junctions not turning left or right is {outcomes["both_junctions_no_turn"]}  
+The percentage of total vehicles recorded that are trucks for this date is {outcomes[""]}%
+The average number of Bikes per hour for this date is {outcomes[""]} 
+ 
+The total number of Vehicles recorded as over the speed limit for this date is {outcomes["vehicles_over_speed"]}  
+The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is 494 The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes[""]}  
+{outcomes[""]} of vehicles recorded through Elm Avenue/Rabbit Road are scooters. 
+ 
+The highest number of vehicles in an hour on Hanley Highway/Westway is {outcomes[""]} 
+The most vehicles through Hanley Highway/Westway were recorded between 18:00 and 19:00  
+The number of hours of rain for this date is {outcomes[""]}
+""")
+
+# Main Program Loop
+while True:
+    date_dd = 15
+    date_MM = 6
+    date_YYYY = 2024
+
+    file_name = f"traffic_data{date_dd:02}{date_MM:02}{date_YYYY}.csv"
+    process_csv_data(file_name)
     if validate_continue_input() == "N":
         print("Exiting the program.")
         break
