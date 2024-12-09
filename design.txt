@@ -1,0 +1,231 @@
+FUNCTION validate_date_input(message, start_range, end_range, year=None, month=None)
+    WHILE True DO
+        TRY
+            date = INPUT message AS INTEGER
+        CATCH ValueError
+            DISPLAY "Integer required"
+            CONTINUE
+        ELSE
+            IF date IS NOT NULL THEN
+                IF year IS NOT NULL AND month IS NOT NULL THEN
+                    IF month = 2 THEN
+                        IF year MOD 4 = 0 AND (year MOD 100 != 0 OR year MOD 400 = 0) THEN
+                            end_range = 29
+                        ELSE
+                            end_range = 28
+                        END IF
+                    ELSE IF month IN [4, 6, 9, 11] THEN
+                        end_range = 30
+                    END IF
+                END IF
+                IF date ≥ start_range AND date ≤ end_range THEN
+                    BREAK
+                ELSE
+                    DISPLAY FORMAT STRING WITH "Out of range - values must be in the range {start_range} and {end_range}"
+                    CONTINUE
+                END IF
+            END IF
+        END TRY
+    END WHILE
+    RETURN date
+END FUNCTION
+
+FUNCTION validate_continue_input()
+    WHILE True DO
+        user_input = INPUT "Do you want to load another dataset? (Y/N): "
+        IF user_input IN ["Y", "N"] THEN
+            RETURN user_input
+        ELSE
+            DISPLAY "Invalid input. Please enter Y or N"
+        END IF
+    END WHILE
+END FUNCTION
+
+FUNCTION process_csv_data(file_path)
+    outcomes = {
+        "lines_in_csv": 0,
+        "total_vehicles": 0,
+        "total_trucks": 0,
+        "total_electric_vehicles": 0,
+        "two_wheeled_vehicles": 0,
+        "total_busses_north_elm_rabbit": 0,
+        "both_junctions_no_turn": 0,
+        "percentage_trucks": 0,
+        "bicycles_per_hour": 0,
+        "vehicles_over_speed": 0,
+        "elm_avenue_vehicles": 0,
+        "hanley_highway_vehicles": 0,
+        "scooter_percentage_elm": 0,
+        "total_bicycles": 0,
+        "total_scooters_elm": 0,
+        "hours": [],
+        "hours_for_rains": [],
+        "hours_of_rain_count": 0
+    }
+
+    OPEN file_path AS file
+        FOR EACH line IN file DO
+            SPLIT line BY "," INTO JunctionName, Date, timeOfDay, travel_Direction_in, travel_Direction_out, Weather_Conditions, JunctionSpeedLimit, VehicleSpeed, VehicleType, electricHybrid
+
+            INCREMENT outcomes["lines_in_csv"]
+
+            IF outcomes["lines_in_csv"] = 1 THEN
+                CONTINUE
+            ELSE
+                INCREMENT outcomes["total_vehicles"]
+                
+                IF VehicleType = "Truck" THEN
+                    INCREMENT outcomes["total_trucks"]
+		END IF
+                
+                IF electricHybrid = "TRUE" THEN
+                    INCREMENT outcomes["total_electric_vehicles"]
+		END IF
+                
+                IF VehicleType IN ["Bicycle", "Scooter", "Motorcycle"] THEN
+                    INCREMENT outcomes["two_wheeled_vehicles"]
+		END IF
+                
+                IF JunctionName = "Elm Avenue/Rabbit Road" AND travel_Direction_out = "N" AND VehicleType = "Buss" THEN
+                    INCREMENT outcomes["total_busses_north_elm_rabbit"]
+		END IF
+                
+                IF travel_Direction_in = travel_Direction_out THEN
+                    INCREMENT outcomes["both_junctions_no_turn"]
+		END IF
+                
+                IF VehicleType = "Bicycle" THEN
+                    INCREMENT outcomes["total_bicycles"]
+		END IF
+                
+                IF JunctionSpeedLimit < VehicleSpeed THEN
+                    INCREMENT outcomes["vehicles_over_speed"]
+		END IF
+                
+                IF JunctionName = "Elm Avenue/Rabbit Road" THEN
+                    INCREMENT outcomes["elm_avenue_vehicles"]
+		END IF
+                
+                IF JunctionName = "Hanley Highway/Westway" THEN
+                    INCREMENT outcomes["hanley_highway_vehicles"]
+                    hour = EXTRACT hour FROM timeOfDay
+                    APPEND hour TO outcomes["hours"]
+		END IF
+                
+                IF VehicleType = "Scooter" AND JunctionName = "Elm Avenue/Rabbit Road" THEN
+                    INCREMENT outcomes["total_scooters_elm"]
+		END IF
+                
+                IF Weather_Conditions IN ["Light Rain", "Heavy Rain"] THEN
+                    hour_of_rain = EXTRACT hour FROM timeOfDay
+                    APPEND hour_of_rain TO outcomes["hours_for_rains"]
+		END IF
+            END IF
+        END FOR
+
+    hour_counts = {}
+    FOR EACH hour IN outcomes["hours"] DO
+        IF hour NOT IN hour_counts THEN
+            hour_counts[hour] = 0
+        INCREMENT hour_counts[hour]
+	END IF
+    END FOR
+    
+    hour_of_rain_counts = {}
+    FOR EACH hour_of_rain IN outcomes["hours_for_rains"] DO
+        IF hour_of_rain NOT IN hour_of_rain_counts THEN
+            hour_of_rain_counts[hour_of_rain] = 0
+        INCREMENT hour_of_rain_counts[hour_of_rain]
+	END IF
+    END FOR
+
+    hour_count = LIST OF VALUES FROM hour_counts
+    hour_of_rain_count = LIST OF KEYS FROM hour_of_rain_counts
+
+    most_common_hours = {}
+    FOR EACH key, value IN hour_counts DO
+        IF value = MAX(hour_count) THEN
+            most_common_hours[key] = value
+        END IF
+    END FOR
+
+    outcomes["percentage_trucks"] = ROUND((outcomes["total_trucks"] / outcomes["total_vehicles"]) * 100)
+	
+    outcomes["bicycles_per_hour"] = ROUND(outcomes["total_bicycles"] / 24)
+	
+    outcomes["scooter_percentage_elm"] = ROUND((outcomes["total_scooters_elm"] / outcomes["elm_avenue_vehicles"]) * 100)
+	
+    outcomes["hours_of_rain_count"] = LENGTH OF hour_of_rain_count
+
+    RETURN outcomes
+
+END FUNCTION
+
+FUNCTION display_outcomes(outcomes)
+    data = FORMAT STRING WITH:
+        "The total number of vehicles recorded for this date is {outcomes["total_vehicles"]}"
+        "The total number of trucks recorded for this date is {outcomes["total_trucks"]}"
+        "The total number of electric vehicles for this date is {outcomes["total_electric_vehicles"]}"
+        "The total number of two-wheeled vehicles for this date is {outcomes["two_wheeled_vehicles"]}"
+        "The total number of Busses leaving Elm Avenue/Rabbit Road heading North is {outcomes["total_busses_north_elm_rabbit"]}"
+        "The total number of Vehicles through both junctions not turning left or right is {outcomes["both_junctions_no_turn"]}"
+        "The percentage of total vehicles recorded that are trucks for this date is {outcomes["percentage_trucks"]}%"
+        "The average number of Bikes per hour for this date is {outcomes["bicycles_per_hour"]}"
+		
+        "The total number of Vehicles recorded as over the speed limit for this date is {outcomes["vehicles_over_speed"]}"
+        "The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is {outcomes["elm_avenue_vehicles"]}"
+        "The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes["hanley_highway_vehicles"]}"
+        "{outcomes["scooter_percentage_elm"]}% of vehicles recorded through Elm Avenue/Rabbit Road are scooters."
+		
+        "The highest number of vehicles in an hour on Hanley Highway/Westway is {MAXIMUM COUNT OF outcomes["hours"]}"
+        "The most vehicles through Hanley Highway/Westway were recorded between {MOST COMMON HOUR}:00 and {MOST COMMON HOUR + 1}:00"
+        "The number of hours of rain for this date is {outcomes["hours_of_rain_count"]}"
+    RETURN data
+END FUNCTION
+
+FUNCTION save_results_to_file(outcomes, csv_file_name, file_name="results.txt")
+    OPEN file_name IN APPEND MODE AS file
+        WRITE FORMAT STRING WITH "data file selected is {csv_file_name}" TO file
+        WRITE outcomes TO file
+        WRITE "***************************" TO file
+        WRITE A NEW LINE TO file
+    CLOSE file
+END FUNCTION
+
+FUNCTION main()
+    WHILE True DO
+        date_dd = CALL validate_date_input("Please enter the day of the survey in the format dd: ", 1, 31)
+        date_MM = CALL validate_date_input("Please enter the month of the survey in the format MM: ", 1, 12)
+        date_YYYY = CALL validate_date_input("Please enter the year of the survey in the format YYYY: ", 2000, 2024)
+
+        file_name = "traffic_data" + FORMAT date_dd + FORMAT date_MM + FORMAT date_YYYY + ".csv"
+        
+        TRY
+            outcomes = CALL process_csv_data(file_name)
+            
+            DISPLAY "***************************"
+            DISPLAY "data file selected is " + file_name
+            DISPLAY "***************************"
+            DISPLAY CALL display_outcomes(outcomes)
+            
+            CALL save_results_to_file(CALL display_outcomes(outcomes), file_name)
+        
+        CATCH FileNotFoundError
+            DISPLAY "No file found. Please check the date and try again."
+        
+        CATCH PermissionError
+            DISPLAY "Permission denied. Please check your file permissions and try again."
+        
+        user_choice = CALL validate_continue_input()
+        IF user_choice = "N" THEN
+            DISPLAY "Exiting the program."
+            BREAK
+	END IF
+    END WHILE
+END FUNCTION
+
+IF __name__ = "__main__" THEN
+    CALL main()
+END IF
+
+
